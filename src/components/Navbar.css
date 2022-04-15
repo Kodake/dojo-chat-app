@@ -33,3 +33,7 @@
     text-decoration: none;
     margin-right: 20px;
 }
+
+.navbar a.active {
+    color: var(--primary-color);
+}
