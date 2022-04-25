@@ -1,36 +1,23 @@
-import { useEffect, useState, useRef } from 'react';
-import { projectFirestore } from '../firebase/config';
-import { Transaction } from '../interfaces/appInterfaces';
+import { useReducer, useEffect, useState } from 'react';
+import { projectFirestore, timestamp } from '../firebase/config';
+import { User } from '../interfaces/appInterfaces';
 
-type WhereFilterOp = [string, any, string];
-type OrderByOp = [string, any | undefined];
-
-export const useCollection = (collection: string, _query: WhereFilterOp, _orderBy: OrderByOp) => {
-    const [documents, setDocuments] = useState<Transaction[] | null>(null);
+export const useCollection = (collection: string) => {
+    const [documents, setDocuments] = useState<User[] | null>(null);
     const [error, setError] = useState<string | null>(null);
-
-    // if we don't use a ref --> infinite loop in useEffect
-    // _query is an array and is 'different' on every function call
-    const query = useRef(_query).current;
-    const orderBy = useRef(_orderBy).current;
 
     useEffect(() => {
         // Get the collection ref
         // let ref = projectFirestore.collection(collection);
 
         // Get the collection ref using query
-        let ref = projectFirestore.collection(collection).where(...query);
-
-        if (query) {
-            ref = ref.where(...query);
-        }
-
-        if (orderBy) {
-            ref = ref.orderBy(...orderBy);
-        }
+        let ref = projectFirestore.collection(collection);
 
         const unsubscribe = ref.onSnapshot((snapshot: any) => {
-            let results: Transaction[] = [];
+            let results: User[] = [];
+
+            console.log(results);
+            
 
             snapshot.docs.forEach((doc: any) => {
                 results.push({ ...doc.data(), id: doc.id })
@@ -39,7 +26,7 @@ export const useCollection = (collection: string, _query: WhereFilterOp, _orderB
             // Update state
             setDocuments(results);
             setError(null);
-        }, (error: any) => {
+        }, (error) => {
             console.log(error);
             setError('Could not fetch the data');
         });
@@ -49,7 +36,7 @@ export const useCollection = (collection: string, _query: WhereFilterOp, _orderB
             unsubscribe();
         }
 
-    }, [collection, query, orderBy]);
+    }, [collection]);
 
     return { documents, error };
 

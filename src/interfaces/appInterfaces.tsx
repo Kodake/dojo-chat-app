@@ -1,16 +1,10 @@
-export interface Transaction {
-    amount: string;
-    uid: string;
-    createdAt: CreatedAt;
-    name: string;
+export interface User { 
     id: string;
+    displayName: string;
+    online: boolean;
+    photoUrl: string;
 }
 
-export interface Transactions {
-    transactions: Transaction[];
-}
-
-export interface CreatedAt {
-    seconds: number;
-    nanoseconds: number;
+export interface Users {
+    transactions: User[];
 }
