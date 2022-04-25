@@ -1,5 +1,5 @@
-import { useReducer, useEffect, useState } from 'react';
-import { projectFirestore, timestamp } from '../firebase/config';
+import { useEffect, useState } from 'react';
+import { projectFirestore } from '../firebase/config';
 import { User } from '../interfaces/appInterfaces';
 
 export const useCollection = (collection: string) => {
