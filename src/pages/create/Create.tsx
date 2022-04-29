@@ -1,5 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Select from 'react-select';
+import { useCollection } from '../../hooks/useCollection';
+import { Options, User } from '../../interfaces/appInterfaces';
+import { timestamp } from '../../firebase/config';
+import { useAuthContext } from '../../hooks/useAuthContext';
 
 // Styles
 import './Create.css';
@@ -12,16 +16,73 @@ const categories = [
 ]
 
 const Create = () => {
+    const { user } = useAuthContext();
+
+    // Form field values
     const [name, setName] = useState('');
     const [details, setDetails] = useState('');
     const [dueDate, setDueDate] = useState('');
+
+    // Handle errors
+    const [formError, setFormError] = useState<string | null>(null);
+
+    // Select category
     const [category, setCategory] = useState('');
-    const [assignedUsers, setAssignedUsers] = useState([]);
+
+    // Select user
+    const [assignedUsers, setAssignedUsers] = useState<User[]>([]);
+    const [users, setUsers] = useState<Options[]>([]);
+    const { documents } = useCollection('users');
 
     const handleSubmit = (e: any) => {
         e.preventDefault();
-        console.log(name, details, dueDate, category);
+        setFormError(null);
+
+        if (!category) {
+            setFormError('Please select a category');
+            return;
+        }
+
+        if (assignedUsers.length < 1) {
+            setFormError('Please assign the project to at least 1 user');
+            return;
+        }
+
+        const createdBy = {
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+            id: user.id
+        }
+
+        const assignedUsersList = assignedUsers.map((u: any) => {            
+            return {
+                displayName: u.value.displayName,
+                photoURL: u.value.photoUrl,
+                id: u.value.id
+            }
+        });
+
+        const project = {
+            name,
+            details,
+            category: category,
+            dueDate: timestamp.fromDate(new Date(dueDate)),
+            comments: [],
+            createdBy,
+            assignedUsersList
+        }
     }
+
+    useEffect(() => {
+        if (documents) {
+            const options = documents.map(user => {
+                return { value: user, label: user.displayName }
+            });
+
+            setUsers(options);
+        }
+    }, [documents])
+
 
     return (
         <div className='create-form'>
@@ -61,16 +122,21 @@ const Create = () => {
                     <Select
                         onChange={(option: any) => setCategory(option)}
                         options={categories}
-                        isMulti
                     />
                 </label>
 
                 <label>
                     <span>Assign To: </span>
-                    {/* TODO: */}
+                    <Select
+                        onChange={(option: any) => setAssignedUsers(option)}
+                        options={users}
+                        isMulti
+                    />
                 </label>
 
                 <button className="btn">Add Project</button>
+
+                {formError && <p className='error'>{formError}</p>}
             </form>
         </div>
     )

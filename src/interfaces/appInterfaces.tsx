@@ -8,3 +8,8 @@ export interface User {
 export interface Users {
     transactions: User[];
 }
+
+export interface Options {
+    value: User;
+    label: string;
+}
