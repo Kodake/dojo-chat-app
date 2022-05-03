@@ -4,9 +4,11 @@ import { useCollection } from '../../hooks/useCollection';
 import { Options, User } from '../../interfaces/appInterfaces';
 import { timestamp } from '../../firebase/config';
 import { useAuthContext } from '../../hooks/useAuthContext';
+import { useHistory } from 'react-router-dom';
 
 // Styles
 import './Create.css';
+import { useFirestore } from '../../hooks/useFirestore';
 
 const categories = [
     { value: 'development', label: 'Development' },
@@ -16,7 +18,9 @@ const categories = [
 ]
 
 const Create = () => {
+    const history = useHistory();
     const { user } = useAuthContext();
+    const { addDocument, response } = useFirestore('projects');
 
     // Form field values
     const [name, setName] = useState('');
@@ -34,7 +38,7 @@ const Create = () => {
     const [users, setUsers] = useState<Options[]>([]);
     const { documents } = useCollection('users');
 
-    const handleSubmit = (e: any) => {
+    const handleSubmit = async (e: any) => {
         e.preventDefault();
         setFormError(null);
 
@@ -51,10 +55,10 @@ const Create = () => {
         const createdBy = {
             displayName: user.displayName,
             photoURL: user.photoURL,
-            id: user.id
+            id: user.uid
         }
 
-        const assignedUsersList = assignedUsers.map((u: any) => {            
+        const assignedUsersList = assignedUsers.map((u: any) => {
             return {
                 displayName: u.value.displayName,
                 photoURL: u.value.photoUrl,
@@ -67,9 +71,15 @@ const Create = () => {
             details,
             category: category,
             dueDate: timestamp.fromDate(new Date(dueDate)),
-            comments: [],
+            comments: [], // todo: add comments
             createdBy,
             assignedUsersList
+        }
+
+        await addDocument(project);
+        
+        if (!response.error) {
+            history.push('/');
         }
     }
 

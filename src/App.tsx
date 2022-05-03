@@ -38,7 +38,7 @@ const App = () => {
                 {user && <Create />}
               </Route>
 
-              <Route path='/project/:id'>
+              <Route path='/projects/:id'>
                 {!user && <Redirect to='/login' />}
                 {user && <Project />}
               </Route>

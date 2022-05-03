@@ -13,3 +13,8 @@ export interface Options {
     value: User;
     label: string;
 }
+
+export interface Project {
+    id: string;
+    name: string;
+}

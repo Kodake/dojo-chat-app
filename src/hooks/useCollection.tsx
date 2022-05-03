@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { projectFirestore } from '../firebase/config';
-import { User } from '../interfaces/appInterfaces';
 
 export const useCollection = (collection: string) => {
-    const [documents, setDocuments] = useState<User[] | null>(null);
+    const [documents, setDocuments] = useState<any[] | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -14,10 +13,7 @@ export const useCollection = (collection: string) => {
         let ref = projectFirestore.collection(collection);
 
         const unsubscribe = ref.onSnapshot((snapshot: any) => {
-            let results: User[] = [];
-
-            console.log(results);
-            
+            let results: any[] = [];            
 
             snapshot.docs.forEach((doc: any) => {
                 results.push({ ...doc.data(), id: doc.id })
