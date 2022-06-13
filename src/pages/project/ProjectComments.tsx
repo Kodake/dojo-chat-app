@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import Avatar from '../../components/Avatar';
 import { timestamp } from '../../firebase/config';
 import { useAuthContext } from '../../hooks/useAuthContext';
 import { useFirestore } from '../../hooks/useFirestore';
+import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 
 interface Props {
     project: any | null;
@@ -35,6 +37,28 @@ const ProjectComments = ({ project }: Props) => {
     return (
         <div className='project-comments'>
             <h4>Project Comments</h4>
+
+            <ul>
+                {project.comments.lentgh > 0 && project.comments.map((comment: any) => (
+                    <li key={comment.id}>
+                        <div className='comment-author'>
+                            <Avatar src={comment.photoURL} />
+                            <p>{comment.displayName}</p>
+                        </div>
+
+                        <div className='comment-date'>
+                            <p>
+                                {formatDistanceToNow(comment.createdAt.toDate(),
+                                    { addSuffix: true })}
+                            </p>
+                        </div>
+
+                        <div className='comment-content'>
+                            <p>{comment.content}</p>
+                        </div>
+                    </li>
+                ))}
+            </ul>
 
             <form className='add-comment' onSubmit={handleSubmit}>
                 <label>
